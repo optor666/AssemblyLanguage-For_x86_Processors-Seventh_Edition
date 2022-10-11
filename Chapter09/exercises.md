@@ -92,5 +92,86 @@ Get_frequencies ENDP
 
 END main
 ```
-7. todo
-8. todo
+7. 厄拉多塞过滤算法：厄拉多塞（Eratosthenes）过滤算法，由同名的希腊数学家发明，提供了在给定范围内快速查找所有质数的方法。该算法创建一个字节数组，并按如下方式在“被标记”位置上插入 1：从位置 2（2是质数）开始，则数组中所有 2 的倍数的位置都插入 1。接着，对下一个质数 3，用同样的方法处理 3 的倍数。查找 3 之后的质数，该数为 5，再对所有 5 的倍数的位置进行标记。持续这种操作直到找出质数的全部倍数。那么，剩下数组中没有被标记的位置就表示其数为质数。编写程序，创建一个含有65 000 个元素的数组，并显示 2 到 65 000 之间的所有质数。要求，再未初始化数据段中声明该数组（参见 3.4.1 节），且使用 STOSB 把 0 填充到数组中。
+```
+INCLUDE Irvine32.inc
+
+Eratosthenes PROTO,
+table: PTR BYTE,
+count: DWORD
+
+
+Print_primeNumber PROTO,
+table: PTR BYTE,
+count: DWORD
+
+.data
+theCount = 65000
+theTable BYTE theCount DUP(?)
+
+.code
+	main PROC
+	call Clrscr
+	
+	INVOKE Eratosthenes,ADDR theTable,theCount
+	INVOKE Print_primeNumber,ADDR theTable,theCount
+
+	exit
+main ENDP
+
+Eratosthenes PROC USES eax ebx ecx edx esi edi,
+	table: PTR BYTE,
+	count : DWORD
+	
+	mov al, 0
+	mov edi, table
+	mov ecx, count
+	cld
+	rep stosb
+
+	mov edi, table
+	mov esi, 2
+L1:
+	mov ebx, 2
+L2:
+	mov eax, esi
+	mul ebx
+	cmp eax, Count
+	ja L3
+	mov BYTE PTR[edi + eax - 1], 1
+	inc ebx
+	jmp L2
+L3:
+	inc esi
+	cmp esi, Count
+	ja L4
+	cmp BYTE PTR[edi + esi - 1], 1
+	je L3
+	jmp L1
+L4:
+	ret
+Eratosthenes ENDP
+
+Print_primeNumber PROC USES eax edi,
+	table: PTR BYTE,
+	count: DWORD
+
+	mov edi,table
+	mov eax,2
+L1:
+	cmp eax,count
+	ja L3
+	cmp BYTE PTR[edi + eax - 1],0
+	jne L2
+	call WriteDec
+	call Crlf
+L2:
+	inc eax
+	jmp L1
+L3:
+	ret
+Print_primeNumber ENDP
+
+END main
+```
+8. 冒泡排序：向 9.5.1 节的 BubbleSort 过程添加一个变量，进行内循环时，只要有一对数值交换就将其置 1。
