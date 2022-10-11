@@ -176,6 +176,85 @@ END main
 ```
 8. 冒泡排序：向 9.5.1 节的 BubbleSort 过程添加一个变量，进行内循环时，只要有一对数值交换就将其置 1。若在某次遍历过程中发现没有数值交换，就在过程正常结束之前，利用该变量提前退出。（该变量通常称为交换标志（exchange flag）。）
 ```
+INCLUDE Irvine32.inc
+
+PrintArray PROTO,
+	prompt:PTR BYTE,
+	pArray:PTR DWORD,
+	Count:DWORD
+
+BubbleSort PROTO,
+	pArray:PTR DWORD, ;// 数组指针
+	Count:DWORD		  ;// 数组大小
+
+.data
+myArray DWORD -25,-24,-23,-8,2,-5,1,4,3,-6,9,10,-11
+promptBefore BYTE "排序前：",0
+promptAfter BYTE "排序后：",0
+
+.code
+main PROC
+	INVOKE PrintArray, ADDR promptBefore, ADDR myArray, LENGTHOF myArray
+	INVOKE BubbleSort, ADDR myArray, LENGTHOF myArray
+	INVOKE PrintArray, ADDR promptAfter, ADDR myArray, LENGTHOF myArray
+	exit
+main ENDP
+
+PrintArray PROC,
+	prompt:PTR BYTE,
+	pArray:PTR DWORD,
+	Count:DWORD
+	
+	mov edx,prompt
+	call WriteString
+	call Crlf
+		
+	mov ecx,Count
+	mov esi,pArray
+L1: mov eax,[esi]
+	call WriteInt
+	mov al,' '
+	call WriteChar
+	add esi,TYPE DWORD
+	loop L1
+
+	call Crlf	
+	ret
+PrintArray ENDP
+
+;//---------------------------------------------
+;// BubbleSort
+;// 使用冒泡算法，将一个 32 位有符号整数数组按升序进行排列。
+;// 接收：数组指针，数组大小
+;// 返回：无
+;//---------------------------------------------
+BubbleSort PROC USES eax ebx ecx esi,
+	pArray:PTR DWORD,			;// 数组指针
+	Count:DWORD					;// 数组大小
+
+	mov ecx,Count
+	dec ecx
+
+L1: push ecx
+	mov esi,pArray
+	mov ebx,0
+L2: mov eax,[esi]
+	cmp [esi+4],eax
+	jg L3
+	xchg eax,[esi+4]
+	mov [esi],eax
+	mov ebx,1
+L3: add esi,4
+	loop L2
+	pop ecx
+	cmp ebx,0
+	je L4
+	loop L1
+
+L4: ret
+BubbleSort ENDP
+
+END main
 ```
 9. 对半查找：重新编写本章给出的对半查找过程，用寄存器来表示 mid、first 和 last。添加注释说明寄存器的用法。
 ```
