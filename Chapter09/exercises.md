@@ -257,7 +257,307 @@ BubbleSort ENDP
 END main
 ```
 9. 对半查找：重新编写本章给出的对半查找过程，用寄存器来表示 mid、first 和 last。添加注释说明寄存器的用法。
+BinarySearch.inc
 ```
+; BinarySearch.inc - prototypes for procedures used in
+; the BubbleSort / BinarySearch program.
+
+; Search for an integer in an array of 32-bit signed
+; integers.
+BinarySearch PROTO,
+	pArray:PTR DWORD,		; pointer to array
+	searchVal:DWORD		; search value
+
+; Fill an array with 32-bit signed random integers
+FillArray PROTO,
+	pArray:PTR DWORD,		; pointer to array
+	Count:DWORD,		; number of elements
+	LowerRange:SDWORD,		; lower range
+	UpperRange:SDWORD		; upper range
+
+; Write a 32-bit signed integer array to standard output
+PrintArray PROTO,
+	pArray:PTR DWORD,
+	Count:DWORD
+
+; Sort the array in ascending order
+BubbleSort PROTO,
+	pArray:PTR DWORD,
+	Count:DWORD
+```
+BinarySearch.asm
+```
+TITLE  Binary Search Procedure            (BinarySearch.asm)
+
+;// Binary Search procedure
+
+INCLUDE Irvine32.inc
+
+.code
+;//-------------------------------------------------------------
+BinarySearch PROC USES ebx edx esi edi,
+	pArray:PTR DWORD,		;// pointer to array
+	searchVal:DWORD			;// search value
+;//
+;// Search an array of signed integers for a single value.
+;// Receives: Pointer to array, array size, search value.
+;//				EAX: first index
+;//				ECX: last index
+;// Returns: If a match is found, EAX = the array position of the
+;// matching element;// otherwise, EAX = -1.
+;//-------------------------------------------------------------
+	
+	mov	 edi,searchVal		;// EDI = searchVal
+	mov	 ebx,pArray			;// EBX points to the array
+
+L1: ;// while first <= last
+	cmp	 eax,ecx
+	jg	 L5					;// exit search
+
+;// mid = (last + first) / 2
+	mov edx,eax
+	add	 eax,ecx
+	shr	 eax,1
+	push eax
+
+;// EDX = values[mid]
+	mov	 esi,eax
+	shl	 esi,2				;// scale mid value by 4
+	mov eax, edx
+	mov	 edx,[ebx+esi]		;// EDX = values[mid]
+
+;// if ( EDX < searchval(EDI) )
+;//	first = mid + 1;//
+	cmp	 edx,edi
+	jge	 L2
+	pop eax
+	inc	 eax
+	jmp	 L4
+
+;// else if( EDX > searchVal(EDI) )
+;//	last = mid - 1;//
+L2:	pop ecx
+	cmp	 edx,edi
+	jle	 L3
+	dec	 ecx;	// last = mid - 1
+	jmp	 L4
+
+;// else return mid
+L3:	mov	 eax,ecx  				;// value found
+	jmp	 L9						;// return (mid)
+
+L4:	jmp	 L1						;// continue the loop
+
+L5:	mov	 eax,-1					;// search failed
+L9:	ret
+BinarySearch ENDP
+END
+```
+BubbleSort.asm
+```
+TITLE  BubbleSort Procedure                  (BubbleSort.asm)
+
+; Sort an array of signed integers, using the Bubble
+; sort algorithm. The main program is in BinarySearchTest.asm.
+
+INCLUDE Irvine32.inc
+
+.code
+;----------------------------------------------------------
+BubbleSort PROC USES eax ecx esi,
+	pArray:PTR DWORD,		; pointer to array
+	Count:DWORD			; array size
+;
+; Sort an array of 32-bit signed integers in ascending order
+; using the bubble sort algorithm.
+; Receives: pointer to array, array size
+; Returns: nothing
+;-----------------------------------------------------------
+
+	mov ecx,Count
+	dec ecx			; decrement count by 1
+
+L1:	push ecx			; save outer loop count
+	mov	esi,pArray	; point to first value
+
+L2:	mov	eax,[esi]		; get array value
+	cmp	[esi+4],eax	; compare a pair of values
+	jge	L3			; if [esi] <= [edi], don't exch
+	xchg eax,[esi+4]	; exchange the pair
+	mov	[esi],eax
+
+L3:	add	esi,4		; move both pointers forward
+	loop	L2			; inner loop
+
+	pop	ecx			; retrieve outer loop count
+	loop L1			; else repeat outer loop
+
+L4:	ret
+BubbleSort ENDP
+
+END
+```
+FillArray.asm
+```
+TITLE FillArray Procedure                 (FillArray.asm)
+
+INCLUDE Irvine32.inc
+
+.code
+;------------------------------------------------------------
+FillArray PROC USES eax edi ecx edx,
+	pArray:PTR DWORD,		  ; pointer to array
+	Count:DWORD,		       ; number of elements
+	LowerRange:SDWORD,		  ; lower range
+	UpperRange:SDWORD		  ; upper range
+;
+; Fills an array with a random sequence of 32-bit signed
+; integers between LowerRange and (UpperRange - 1).
+; Returns: nothing
+;-----------------------------------------------------------
+	mov	edi,pArray	           ; EDI points to the array
+	mov	ecx,Count	                ; loop counter
+	mov	edx,UpperRange
+	sub	edx,LowerRange	           ; EDX = absolute range (0..n)
+	cld                            ; clear direction flag
+
+L1:	mov	eax,edx	                ; get absolute range
+	call	RandomRange
+	add	eax,LowerRange	           ; bias the result
+	stosd		                ; store EAX into [edi]
+	loop	L1
+
+	ret
+FillArray ENDP
+
+END
+```
+PrintArray.asm
+```
+TITLE PrintArray Procedure                  (PrintArray.asm)
+
+INCLUDE Irvine32.inc
+
+.code
+;//-----------------------------------------------------------
+PrintArray PROC USES eax ecx edx esi,
+	pArray:PTR DWORD,		;// pointer to array
+	Count:DWORD			;// number of elements
+;//
+;// Writes an array of 32-bit signed decimal integers to
+;// standard output, separated by commas
+;// Receives: pointer to array, array size
+;// Returns: nothing
+;//-----------------------------------------------------------
+.data
+comma BYTE ", ",0
+.code
+	mov	esi,pArray
+	mov	ecx,Count
+	cld				;// direction = forward
+
+L1:	lodsd			;// load [ESI] into EAX
+	call	WriteInt		;// send to output
+	mov	edx,OFFSET comma
+	call	Writestring	;// display comma
+	loop	L1
+
+	call	Crlf
+	ret
+PrintArray ENDP
+
+END
+```
+BinarySearchTest.asm
+```
+TITLE Bubble Sort and Binary Search       BinarySearchTest.asm)
+
+;// Bubble sort an array of signed integers, and perform
+;// a binary search.
+;// Main module, calls Bsearch.asm, Bsort.asm, FillArry.asm
+
+INCLUDE Irvine32.inc
+INCLUDE BinarySearch.inc		;// procedure prototypes
+
+AskForInputANumber PROTO,
+	prompt:PTR BYTE
+
+LOWVAL = -5000			;// minimum value
+HIGHVAL = +5000		;// maximum value
+ARRAY_SIZE = 50		;// size of the array
+
+.data
+array DWORD ARRAY_SIZE DUP(?)
+askForSearchValPrompt BYTE "Enter a signed decimal integer to find in the array: ", 0
+askForFirstIndexPrompt BYTE "Enter first index: ",0
+askForLastIndexPrompt BYTE "Enter last index: ",0
+
+.code
+main PROC
+	call Randomize
+
+	;// Fill an array with random signed integers
+	INVOKE FillArray, ADDR array, ARRAY_SIZE, LOWVAL, HIGHVAL
+
+	;// Display the array
+	INVOKE PrintArray, ADDR array, ARRAY_SIZE
+	call	WaitMsg
+	call Crlf
+
+	;// Perform a bubble sort and redisplay the array
+	INVOKE BubbleSort, ADDR array, ARRAY_SIZE
+	INVOKE PrintArray, ADDR array, ARRAY_SIZE
+
+	;// Demonstrate a binary search
+	INVOKE AskForInputANumber, ADDR askForSearchValPrompt
+	mov edi,eax
+	INVOKE AskForInputANumber, ADDR askForFirstIndexPrompt
+	mov ebx,eax
+	INVOKE AskForInputANumber, ADDR askForLastIndexPrompt
+	mov ecx,eax
+	mov eax,ebx
+	INVOKE BinarySearch, ADDR array, edi
+	call	ShowResults
+
+	exit
+main ENDP
+
+;//--------------------------------------------------------
+AskForInputANumber PROC,
+	prompt:PTR BYTE
+	
+	call Crlf
+	mov edx,prompt
+	call WriteString
+	call ReadInt
+	ret
+AskForInputANumber ENDP
+
+;//--------------------------------------------------------
+ShowResults PROC
+;//
+;// Display the resulting value from the binary search.
+;// Receives: EAX = position number to be displayed
+;// Returns: nothing
+;//--------------------------------------------------------
+.data
+msg1 BYTE "The value was not found.",0
+msg2 BYTE "The value was found at position ",0
+.code
+.IF eax == -1
+	mov	edx,OFFSET msg1
+	call	WriteString
+.ELSE
+	mov	edx,OFFSET msg2
+	call	WriteString
+	call	WriteDec
+.ENDIF
+	call	Crlf
+	call	Crlf
+	ret
+ShowResults ENDP
+
+END main
 ```
 10. 字母矩阵：编写过程生成一个 4 x 4 的矩阵，矩阵元素为随机选择的大写字母。选择字母时，必须保证被选字母是元音的概率为 50%。编写测试程序，用循环调用该过程 5 次，并在控制台窗口显示所有矩阵。前三次矩阵的示例输出如下所示：
 D W A L
