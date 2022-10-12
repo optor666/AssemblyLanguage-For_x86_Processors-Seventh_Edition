@@ -573,8 +573,92 @@ A E A U
 G K A E
 I A G D
 ```
+INCLUDE Irvine32.inc
+
+Str_length PROTO,
+	pString:PTR BYTE	;// pointer to string
+
+GenerateMatrix PROTO,
+	vowelsPtr:PTR BYTE,
+	nonVowelsPtr : PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+GetRandomChar PROTO,
+	pString : PTR BYTE,
+	count : DWORD
+
+.data
+rows=4
+cols=4
+vowels BYTE "AEIOU",0
+nonVowels BYTE "BCDFGHJKLMNPQRSTVWXYZ",0
+
+.code
+main PROC
+	call Randomize
+
+	mov ecx,5
+L1: INVOKE GenerateMatrix, ADDR vowels, ADDR nonVowels, rows, cols
+	call Crlf
+	loop L1
+
+	exit
+main ENDP
+
+GenerateMatrix PROC USES eax ebx ecx edx,
+	vowelsPtr:PTR BYTE,
+	nonVowelsPtr:PTR BYTE,
+	rowCount:DWORD,
+	colCount:DWORD
+
+	INVOKE Str_length, vowelsPtr
+	mov ebx,eax
+	INVOKE Str_length, nonVowelsPtr
+	mov edx,eax
+
+	mov ecx,rowCount
+L1: push ecx
+	mov ecx,colCount
+L2: mov eax,10
+	call RandomRange
+	cmp eax,5
+	jb L3
+	INVOKE GetRandomChar, vowelsPtr, ebx
+	jmp L4
+L3:
+	INVOKE GetRandomChar, nonVowelsPtr, edx
+L4:
+	call WriteChar
+	mov al,' '
+	call WriteChar
+	loop L2
+	call Crlf
+	pop ecx
+	loop L1
+	
+	ret
+GenerateMatrix ENDP
+
+GetRandomChar PROC,
+	pString:PTR BYTE,
+	count:DWORD
+
+	mov eax,count
+	call RandomRange
+	add eax,pString
+	mov al,[eax]
+	ret
+GetRandomChar ENDP
+
+END main
 ```
-11. 字母矩阵/按元音分组：
+11. 字母矩阵/按元音分组：本程序以上一道编程练习生成的字母矩阵为基础。生成一个 4 x 4 的字母矩阵，其中每个字母都有 50% 的概率为元音字母。遍历矩阵的每一行，每一列，和每个对角线，并产生字母组。当一组四个字母中只有两个元音字母时，显示该字母组。比如，假设生成矩阵如下所示：
+P O A Z
+A E A U
+G K A E
+I A G D
+则程序应显示的四字母组为 POAZ、GKAE、IAGD、PAGI、ZUED、PEAD 和 ZAKI。各组内字母的顺序并不重要。
 ```
 ```
 12. 数组行求和：
