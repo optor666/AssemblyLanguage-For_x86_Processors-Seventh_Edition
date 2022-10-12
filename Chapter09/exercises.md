@@ -664,6 +664,347 @@ I A G D
 ```
 则程序应显示的四字母组为 POAZ、GKAE、IAGD、PAGI、ZUED、PEAD 和 ZAKI。各组内字母的顺序并不重要。
 ```
+INCLUDE Irvine32.inc
+
+Str_length PROTO,
+	pString:PTR BYTE	;// pointer to string
+
+IsVowel PROTO,
+	vowelsPtr:PTR BYTE,
+	testChar : BYTE
+
+PrintRow PROTO,
+	matrixPtr:PTR BYTE,
+	rowNum : DWORD,
+	colCount : DWORD
+
+PrintCol PROTO,
+	matrixPtr:PTR BYTE,
+	colNum : DWORD,
+	rowCount : DWORD,
+	colCount : DWORD
+
+PrintDiagonalLetterGroup PROTO,
+	vowelsPtr:PTR BYTE,
+	matrixPtr:PTR BYTE,
+	count:DWORD,
+	cachePtr:PTR BYTE
+
+PrintRowLetterGroup PROTO,
+	vowelsPtr:PTR BYTE,
+	matrixPtr : PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+PrintColLetterGroup PROTO,
+	vowelsPtr:PTR BYTE,
+	matrixPtr:PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+PrintMatrix PROTO,
+	matrixPtr:PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+GenerateMatrix PROTO,
+	vowelsPtr:PTR BYTE,
+	nonVowelsPtr : PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD,
+	matrixPtr:PTR BYTE
+
+GetRandomChar PROTO,
+	pString : PTR BYTE,
+	count : DWORD
+
+.data
+rows=4
+cols=4
+vowels BYTE "AEIOU",0
+nonVowels BYTE "BCDFGHJKLMNPQRSTVWXYZ",0
+matrix BYTE rows DUP(cols DUP(?))
+prompt1 BYTE "生成的矩阵是："
+cache BYTE rows DUP(?),",",0
+
+.code
+main PROC
+	call Randomize
+
+	INVOKE GenerateMatrix, ADDR vowels, ADDR nonVowels, rows, cols, ADDR matrix
+	mov edx,OFFSET prompt1
+	call WriteString
+	call Crlf
+	INVOKE PrintMatrix, ADDR matrix, rows, cols
+
+	;// 遍历矩阵每一行
+	call Crlf
+	INVOKE PrintRowLetterGroup, ADDR vowels, ADDR matrix, rows, cols
+	;// 遍历矩阵每一列
+	call Crlf
+	INVOKE PrintColLetterGroup, ADDR vowels, ADDR matrix, rows, cols
+	;// 遍历矩阵对角线
+	call Crlf
+	INVOKE PrintDiagonalLetterGroup, ADDR vowels, ADDR matrix, rows, ADDR cache
+	exit
+main ENDP
+
+IsVowel PROC USES ecx edi,
+	vowelsPtr:PTR BYTE,
+	testChar:BYTE
+	
+	INVOKE Str_length, vowelsPtr
+	mov ecx,eax
+	mov edi,vowelsPtr
+	mov al,testChar
+	cld
+	repne scasb
+	jnz L1 ;// 未发现字符
+	mov eax,1
+	jmp L2
+L1: mov eax,0
+L2:
+	ret
+IsVowel ENDP
+
+PrintRow PROC USES eax ebx ecx esi,
+	matrixPtr:PTR BYTE,
+	rowNum:DWORD,
+	colCount:DWORD
+	
+	mov eax,rowNum
+	mul colCount
+	mov ebx,eax
+	mov esi,matrixPtr
+	mov ecx,colCount
+L1: mov al,[esi+ebx]
+	call WriteChar
+	inc ebx
+	loop L1
+	mov al,','
+	call WriteChar
+	ret
+PrintRow ENDP
+
+PrintCol PROC USES eax ecx esi,
+	matrixPtr:PTR BYTE,
+	colNum : DWORD,
+	rowCount : DWORD,
+	colCount:DWORD
+
+	mov esi, matrixPtr
+	mov ecx,0
+L1: mov eax,colCount
+	mul ecx
+	add eax,colNum
+	mov al,[esi+eax]
+	call WriteChar
+	inc ecx
+	cmp ecx,rowCount
+	jne L1
+	mov al, ','
+	call WriteChar
+	ret
+PrintCol ENDP
+
+PrintDiagonalLetterGroup PROC USES eax ebx ecx edx esi edi,
+	vowelsPtr:PTR BYTE,
+	matrixPtr:PTR BYTE,
+	count:DWORD,
+	cachePtr:PTR BYTE
+
+	mov esi,matrixPtr
+	mov edi,cachePtr
+	mov ecx,0
+	mov ebx,0
+L1: mov eax,ecx
+	mul count
+	add eax,ecx
+	mov al,[esi+eax]
+	mov [edi],al
+	INVOKE IsVowel, vowelsPtr, al
+	cmp eax,0
+	je L2
+	inc ebx
+L2:
+	inc ecx
+	inc edi
+	cmp ecx,count
+	jne L1
+
+	cmp ebx,2
+	jne L3
+	mov edx,cachePtr
+	call WriteString
+L3:	
+	mov esi, matrixPtr
+	mov edi, cachePtr
+	mov ecx, 0
+	mov ebx, 0
+L4: mov eax,count
+	mul ecx
+	add eax,count
+	dec eax
+	sub eax,ecx
+	mov al,[esi+eax]
+	mov [edi],al
+	INVOKE IsVowel, vowelsPtr, al
+	cmp eax,0
+	je L5
+	inc ebx
+L5: inc ecx
+	inc edi
+	cmp ecx,count
+	jne L4
+	cmp ebx,2
+	jne L6
+	mov edx,cachePtr
+	call WriteString
+L6: ret
+PrintDiagonalLetterGroup ENDP
+
+PrintColLetterGroup PROC USES eax ebx ecx edx esi edi,
+	vowelsPtr:PTR BYTE,
+	matrixPtr:PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+	mov esi, matrixPtr
+
+	mov ecx, 0 ;// ecx 表示列数
+L1: mov ebx, 0 ;// ebx 表示行数
+	mov edi,0 ;// edi 表示一列中元音字母个数
+L2: mov eax, ebx
+	mul colCount
+	add eax,ecx
+	mov al,[esi + eax]
+	INVOKE IsVowel, vowelsPtr, al
+	cmp eax,0
+	je L3
+	inc edi
+L3:
+	inc ebx
+	cmp ebx, rowCount
+	jne L2
+	cmp edi,2
+	jne L4
+	INVOKE PrintCol, matrixPtr, ecx, rowCount, colCount
+L4:
+	inc ecx
+	cmp ecx, colCount
+	jne L1
+
+	ret
+PrintColLetterGroup ENDP
+
+PrintRowLetterGroup PROC USES eax ebx ecx edx esi edi,
+	vowelsPtr:PTR BYTE,
+	matrixPtr:PTR BYTE,
+	rowCount : DWORD,
+	colCount : DWORD
+
+	mov esi, matrixPtr
+
+	mov ebx, 0
+L1: mov ecx, 0
+	mov edi,0
+L2: mov eax, ebx
+	mul colCount
+	add eax,ecx
+	mov al,[esi + eax]
+	INVOKE IsVowel, vowelsPtr, al
+	cmp eax,0
+	je L3
+	inc edi
+L3:
+	inc ecx
+	cmp ecx, colCount
+	jne L2
+	cmp edi,2
+	jne L4
+	INVOKE PrintRow, matrixPtr, ebx, colCount
+L4:
+	inc ebx
+	cmp ebx, rowCount
+	jne L1
+
+	ret
+PrintRowLetterGroup ENDP
+
+PrintMatrix PROC USES eax ebx ecx edx esi,
+	matrixPtr:PTR BYTE,
+	rowCount:DWORD,
+	colCount:DWORD
+
+	mov esi,matrixPtr
+
+	mov ebx,0
+L1: mov ecx,0
+L2: mov eax,ebx
+	mul colCount
+	add eax,ecx
+	mov al,[esi+eax]
+	call WriteChar
+	mov al,' '
+	call WriteChar
+	inc ecx
+	cmp ecx,colCount
+	jne L2
+	call Crlf
+	inc ebx
+	cmp ebx,rowCount
+	jne L1
+L3:
+	ret
+PrintMatrix ENDP
+
+GenerateMatrix PROC USES eax ebx ecx edx esi,
+	vowelsPtr:PTR BYTE,
+	nonVowelsPtr:PTR BYTE,
+	rowCount:DWORD,
+	colCount:DWORD,
+	matrixPtr:PTR BYTE
+
+	INVOKE Str_length, vowelsPtr
+	mov ebx,eax
+	INVOKE Str_length, nonVowelsPtr
+	mov edx,eax
+
+	mov esi,matrixPtr
+
+	mov ecx,rowCount
+L1: push ecx
+	mov ecx,colCount
+L2: mov eax,10
+	call RandomRange
+	cmp eax,5
+	jb L3
+	INVOKE GetRandomChar, vowelsPtr, ebx
+	jmp L4
+L3:
+	INVOKE GetRandomChar, nonVowelsPtr, edx
+L4:
+	mov [esi],al
+	inc esi
+	loop L2
+	pop ecx
+	loop L1
+	
+	ret
+GenerateMatrix ENDP
+
+GetRandomChar PROC,
+	pString:PTR BYTE,
+	count:DWORD
+
+	mov eax,count
+	call RandomRange
+	add eax,pString
+	mov al,[eax]
+	ret
+GetRandomChar ENDP
+
+END main
 ```
 12. 数组行求和：
 ```
