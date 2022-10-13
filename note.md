@@ -1,8 +1,6 @@
-# 过程
-  过程，也称为子程序或函数。
-## 堆栈
+# 堆栈
   运行时堆栈是内存数组，CPU 用 ESP（扩展堆栈指针，extended stack pointer）寄存器对其进行直接管理，该寄存器被称为堆栈指针寄存器（stack pointer register）。32 位模式下，ESP 寄存器存放的是堆栈中某个位置的 32 位偏移量。ESP 基本上不会直接被程序员控制，反之，它是用 CALL、RET、PUSH 和 POP 等指令间接进行修改。
-### 指令
+## 指令
 <table>
     <tr>
         <th>指令</th><th>格式</th>
@@ -41,3 +39,16 @@
         <td>POPA</td><td>POPA (按照相反顺序将同样的寄存器弹出堆栈)</td>
     </tr>
 </table>
+
+# 过程
+  过程，也称为子程序或函数。基于堆栈和指令指针寄存器（即 EIP 寄存器；16 位模式下是 IP寄存器），汇编语言通过 CALL、RET 两条指令实现过程。CALL 指令调用一个过程，将返回地址（其下一条指令的地址）压入堆栈，并把被调用过程的地址复制到指令指针寄存器；RET 指令从堆栈中把返回地址弹出到指令指针寄存器。
+1. 过程涉及指令：CALL RET
+2. 过程涉及伪指令：PROC ENDP
+## 示例
+1. 使用基本的 CALL、RET 指令来调用过程，使用寄存器来传递输入、输出参数：
+2. todo
+# 指令
+1. 堆栈相关：PUSH POP PUSHFD POPFD PUSHAD POPAD PUSHA POPA
+2. 过程相关：CALL RET
+# 伪指令
+1. 过程相关：PROC ENDP
