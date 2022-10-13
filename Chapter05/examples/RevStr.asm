@@ -1,4 +1,5 @@
 ; 字符串翻转	(RevStr.asm)
+; 编译链接命令：ml .\RevStr.asm /link /SUBSYSTEM:CONSOLE /link /LIBPATH C:\Irvine\Kernel32.Lib /DEBUG
 .386
 .model flat,stdcall
 
