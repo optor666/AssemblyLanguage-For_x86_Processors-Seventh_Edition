@@ -45,8 +45,10 @@
 
 # 过程
   过程，也称为子程序或函数。基于堆栈和指令指针寄存器（即 EIP 寄存器；16 位模式下是 IP寄存器），汇编语言通过 CALL、RET 两条指令实现过程。CALL 指令调用一个过程，将返回地址（其下一条指令的地址）压入堆栈，并把被调用过程的地址复制到指令指针寄存器；RET 指令从堆栈中把返回地址弹出到指令指针寄存器。
-1. 过程涉及指令：CALL RET
-2. 过程涉及伪指令：PROC ENDP
+## 定义过程
+1. 使用伪指令 PROC、ENDP 定义过程；
+## 调用过程
+1. 使用指令 CALL、RET 调用过程；
 ## 示例
 1. 使用基本的 CALL、RET 指令来调用过程，使用寄存器来传递输入、输出参数：[TestArraySum.asm](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/TestArraySum.asm)
 2. todo
