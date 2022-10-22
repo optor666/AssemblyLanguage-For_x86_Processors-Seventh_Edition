@@ -62,3 +62,9 @@
 1. kernel32.lib 文件是 Microsoft Windows 平台软件开发工具（Software Development Kit）的一部分，它包含了 kernel32.dll 文件中系统函数的链接信息；
 2. kernel32.dll 文件是 MS-Windows 的一个基本组成部分，被称为动态链接库（dynamic link library）。它含有的可执行函数实现基于字符的输入输出；
 3. Irvine32 是作者自己开发的一个基于 Windows 系统给初学者提供简单的输入输出接口的链接库；（可以猜测：Irvine32 链接库封装了 Windows 系统的系统调用）
+# Microsoft Visual Studio Community 2019
+## 版本信息
+1. Microsoft Visual Studio Community 2019 版本 16.11.8
+## 使用技巧
+1. 查看 MASM 高级运算符和伪指令生成的隐藏机器指令：断点调试某个汇编程序 - 鼠标右键 - 转到反汇编
+2. 设置汇编程序启动时的参数：菜单栏 - 项目 - Project 属性 - 配置属性 - 调试 - 命令参数
