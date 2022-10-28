@@ -71,6 +71,7 @@
 | Clrf | 换行 |
 | Clrscr | 清屏 |
 | DumpMem | dump 内存区域（esi 内存起始位置、ebx 单个输出字节数、ecx 单个输出长度）|
+| GetMseconds | 获取从午夜开始经过的毫秒数，并用 eax 返回该值 |
 | Randomize | 初始化随机数种子 |
 | Random32 | 生成 32 位随机数（eax） |
 | RandomRange | 生成 [0, eax) 范围随机数（eax） |
