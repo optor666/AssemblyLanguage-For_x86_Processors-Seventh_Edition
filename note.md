@@ -57,11 +57,32 @@
 1. 堆栈相关：PUSH POP PUSHFD POPFD PUSHAD POPAD PUSHA POPA
 2. 过程相关：CALL RET
 # 伪指令
-1. 过程相关：PROC ENDP
+1. 获取某个全局变量内存位置：OFFSET arrayD
+2. 获取某个类型或某个变量类型字节数：TYPE SDWORD 或 TYPE arrayD
+3. 获取数组长度：LENGTHOF arrayD
+4. 过程相关：PROC ENDP
 # 随书链接库
 1. kernel32.lib 文件是 Microsoft Windows 平台软件开发工具（Software Development Kit）的一部分，它包含了 kernel32.dll 文件中系统函数的链接信息；
 2. kernel32.dll 文件是 MS-Windows 的一个基本组成部分，被称为动态链接库（dynamic link library）。它含有的可执行函数实现基于字符的输入输出；
 3. Irvine32 是作者自己开发的一个基于 Windows 系统给初学者提供简单的输入输出接口的链接库；（可以猜测：Irvine32 链接库封装了 Windows 系统的系统调用）
+
+| 过程名称 | 过程作用 |
+| - | -|
+| Clrf | 换行 |
+| Clrscr | 清屏 |
+| DumpMem | dump 内存区域（esi 内存起始位置、ebx 单个输出字节数、ecx 单个输出长度）|
+| Randomize | 初始化随机数种子 |
+| Random32 | 生成 32 位随机数（eax） |
+| RandomRange | 生成 [0, eax) 范围随机数（eax） |
+| ReadInt | 输入有符号整数，正号可省略（eax 输入值） |
+| SetTextColor | 设置前景色、背景色（可以参考 Irvine32.inc 中颜色定义以及[示例1](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/InputLoop.asm) |
+| WaitMsg | 等待任意输入 |
+| WriteBin | 输出 eax 二进制 |
+| WriteChar | 输出 al 字符（若为不可见字符，则可直接使用其 ASCII 码值，可参考[示例1](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/TestLib2.asm)
+| WriteDec | 输出 eax 无符号十进制 |
+| WriteHex | 输出 eax 十六进制 |
+| WriteInt | 输出 eax 有符号十进制 |
+| WriteString | 输出字符串（edx 字符串起始内存位置）
 # Microsoft Visual Studio Community 2019
 ## 版本信息
 1. Microsoft Visual Studio Community 2019 版本 16.11.8
