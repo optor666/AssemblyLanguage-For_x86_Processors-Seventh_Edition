@@ -63,7 +63,7 @@
 4. 过程相关：PROC ENDP
 # 随书链接库
 1. kernel32.lib 文件是 Microsoft Windows 平台软件开发工具（Software Development Kit）的一部分，它包含了 kernel32.dll 文件中系统函数的链接信息；
-2. kernel32.dll 文件是 MS-Windows 的一个基本组成部分，被称为动态链接库（dynamic link library）。它含有的可执行函数实现基于字符的输入输出；
+2. kernel32.dll 文件是 MS-Windows 的一个基本组成部分，被称为动态链接库（dynamic link library）。它含有的可执行函数实现基于字符的输入输出；它在系统上的位置："C:\Windows\System32\kernel32.dll"
 3. Irvine32 是作者自己开发的一个基于 Windows 系统给初学者提供简单的输入输出接口的链接库；（可以猜测：Irvine32 链接库封装了 Windows 系统的系统调用）
 
 | 过程名称 | 过程作用 |
