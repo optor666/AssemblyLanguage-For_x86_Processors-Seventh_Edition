@@ -52,7 +52,21 @@
 1. 使用指令 CALL、RET 调用过程；
 ## 示例
 1. 使用基本的 CALL、RET 指令来调用过程，使用寄存器来传递输入、输出参数：[TestArraySum.asm](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/TestArraySum.asm)
-2. todo
+# 寄存器
+
+| 英文名 | 中文名 | 用途 |
+| - | - | - |
+| EAX | | |
+| EBX | | |
+| ECX | | |
+| EDX | | |
+| ESI | | |
+| EDI | | |
+| ESP | | |
+| EBP | | |
+| EIP | | |
+| EFL(EFLAGS) | 进位、符号、零、溢出、辅助进位、奇偶 标志位 | |
+
 # 指令
 1. 堆栈相关：PUSH POP PUSHFD POPFD PUSHAD POPAD PUSHA POPA
 2. 过程相关：CALL RET
@@ -70,12 +84,18 @@
 | - | -|
 | Clrf | 换行 |
 | Clrscr | 清屏 |
-| DumpMem | dump 内存区域（esi 内存起始位置、ebx 单个输出字节数、ecx 单个输出长度）|
+| Delay | 暂停 eax 毫秒数 |
+| DumpMem | dump 内存区域（esi 内存起始位置、ebx 输出单元字节数、ecx 输出单元个数）|
+| DumpRegs | 用十六进制显示 10 个寄存器内容以及 6 个标志位内容 |
+| GetMaxXY | 获取控制台窗口大小（AX 缓冲区行数、DX 缓冲区列表） |
 | GetMseconds | 获取从午夜开始经过的毫秒数，并用 eax 返回该值 |
+| Gotoxy | 将光标定位到控制台指定位置（DH 行数、DL 列表） |
 | Randomize | 初始化随机数种子 |
 | Random32 | 生成 32 位随机数（eax） |
 | RandomRange | 生成 [0, eax) 范围随机数（eax） |
+| ReadDec | 输入无符号整数（eax） |
 | ReadInt | 输入有符号整数，正号可省略（eax 输入值） |
+| ReadString | 输入字符串（EDX 保存输入缓冲区起始位置、ECX 用户可以输入字符个数加 1、EAX 用户键入字符数） |
 | SetTextColor | 设置前景色、背景色（可以参考 Irvine32.inc 中颜色定义以及[示例1](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/InputLoop.asm) |
 | WaitMsg | 等待任意输入 |
 | WriteBin | 输出 eax 二进制 |
