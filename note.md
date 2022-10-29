@@ -75,6 +75,8 @@
 2. 获取某个类型或某个变量类型字节数：TYPE SDWORD 或 TYPE arrayD
 3. 获取数组长度：LENGTHOF arrayD
 4. 过程相关：PROC ENDP
+# 标号
+1. 带有单个冒号的代码标号只在包含它的过程中可见；带有两个冒号（::）的标号则是全局标号；
 # 随书链接库
 1. kernel32.lib 文件是 Microsoft Windows 平台软件开发工具（Software Development Kit）的一部分，它包含了 kernel32.dll 文件中系统函数的链接信息；
 2. kernel32.dll 文件是 MS-Windows 的一个基本组成部分，被称为动态链接库（dynamic link library）。它含有的可执行函数实现基于字符的输入输出；它在系统上的位置："C:\Windows\System32\kernel32.dll"
