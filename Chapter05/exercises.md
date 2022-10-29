@@ -268,3 +268,115 @@ proc_3 PROC
     ret
 proc_3 ENDP
 ```
+## 5.8.2
+1. 编写一组语句，使用 PUSH 和 POP 指令来交换 EAX 和 EBX 寄存器（或 64 位的 RAX 和 RBX）中的值。
+``` asm
+ .386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+array DWORD 4 DUP(0)
+.code
+main PROC
+	mov eax,10
+	mov ebx,20
+	push eax
+	push ebx
+	pop eax
+	pop ebx
+	INVOKE ExitProcess, 0
+main ENDP
+
+END main
+```
+2. 假设需要一个子程序的返回地址在内存中比当前堆栈中的返回地址高 3 个字节。编写一组指令放在该子程序 RET 指令之前，以完成这个任务。
+``` asm
+sub esp,3
+```
+3. 高级语言的函数通常在堆栈中的返回地址下，立刻声明局部变量。在汇编语言子程序开端编写一条指令来保留两个双字变量的空间。然后，对这两个局部变量分别赋值 1000h 和 2000h。
+``` asm
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+array DWORD 4 DUP(0)
+.code
+main PROC
+	call func
+	INVOKE ExitProcess, 0
+main ENDP
+
+func PROC
+	push ebp
+	mov ebp,esp
+	sub esp,(type dword) * 2
+	mov dword ptr [ebp - type dword],1000h
+	mov dword ptr [ebp - (type dword) * 2], 2000h
+
+	add esp,(type dword) * 2
+	pop ebp
+	ret
+func ENDP
+
+END main
+```
+4. 编写一组语句，用变址寻址方式将双字数组中的元素复制到同一数组中其前面的一个位置上。
+``` asm
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+array DWORD 1000h,2000h,3000h,4000h,5000h
+.code
+main PROC
+	mov edi,0
+	mov esi,type dword
+	mov ecx,lengthof array - 1
+
+	L1: mov eax,array[esi]
+	mov array[edi],eax
+	add edi,type dword
+	add esi,type dword
+	loop L1
+
+	INVOKE ExitProcess,0
+main ENDP
+
+END main
+```
+5. 编写一组语句显示子程序的返回地址。注意，不论如何修改堆栈，都不能阻止子程序返回到调用程序。
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+array DWORD 1000h,2000h,3000h,4000h,5000h
+.code
+main PROC
+	call func
+	L1: mov eax,offset L1
+	call WriteHex
+	call Crlf
+	INVOKE ExitProcess,0
+main ENDP
+
+func PROC
+	pop eax
+	push eax
+	call WriteHex 
+	call Crlf
+	ret
+func ENDP
+
+END main
+```
