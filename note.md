@@ -97,6 +97,7 @@
 | ReadInt | 输入有符号整数，正号可省略（eax 输入值） |
 | ReadString | 输入字符串（EDX 保存输入缓冲区起始位置、ECX 用户可以输入字符个数加 1、EAX 用户键入字符数） |
 | SetTextColor | 设置前景色、背景色（可以参考 Irvine32.inc 中颜色定义以及[示例1](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/InputLoop.asm) |
+| Str_length | edx 以空字节结尾的字符串偏移量、eax 字符串长度 |
 | WaitMsg | 等待任意输入 |
 | WriteBin | 输出 eax 二进制 |
 | WriteChar | 输出 al 字符（若为不可见字符，则可直接使用其 ASCII 码值，可参考[示例1](https://github.com/optor666/AssemblyLanguage-For_x86_Processors-Seventh_Edition/blob/master/Chapter05/examples/TestLib2.asm)
