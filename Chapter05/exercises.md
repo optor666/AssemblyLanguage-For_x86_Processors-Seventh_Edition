@@ -19,3 +19,51 @@
 3. 编写 CALL 语句调用外部链接库中的过程 MyProc。答：call MyProc
 4. 本书支持的 32 位链接库的名称是什么？答：Irvine32.lib。
 5. kernel32.dll 是什么类型的文件？答：动态链接库。
+## 5.4.5
+1. 链接库中的哪个过程在指定范围内生成随机整数？答：RandomRange。
+2. 链接库中的哪个过程显示”Press [Enter] to continue...“ 并等待用户按下 Enter 键？答：WaitMsg。
+3. 编写语句使程序暂停 700 毫秒。
+``` asm
+mov eax,700
+call Dealy
+```
+4. 链接库中的哪个过程以十进制形式向控制台窗口输入无符号整数？答：WriteDec。
+5. 链接库中的哪个过程将光标定位到控制台窗口的指定位置？答：Gotoxy。
+6. 编写使用 Irvine32 链接库时所需的 INCLUDE 伪指令。答：include Irvine32.inc。
+7. Irvine32.inc 文件中包含哪些类型的语句？答：include 语句、子过程原型声明语句、常量定义语句。
+8. DumpMem 过程需要哪些输入参数？答：ESI 中存放内存区域首地址、ECX 中存放单元个数、EBX 中存放单元大小。
+9. ReadString 过程需要哪些输入参数？答：EDX 中存放缓冲区偏移量、ECX 中存放能键入最大字符数加 1；EAX 中存放实际键入字符数。
+10. DumpRegs 过程显示哪些处理器状态标志位？答：进位标志位、符号标志位、零标志位、溢出标志位、辅助标志位和奇偶标志位。
+11. 挑战：编写语句提示用户输入标识号，并向字节数组输入一串数字。
+``` asm
+include Irvine32.inc
+
+.data
+LEN = 10
+nums DWORD LEN DUP(?)
+prompt BYTE "Enter a 32-bit unsigned integer: ",0
+
+.code
+main PROC
+	mov esi,OFFSET nums
+	mov ecx,LEN
+	mov ebx,type nums
+	call DumpMem
+
+	L1: mov edx,OFFSET prompt
+	call WriteString
+	call ReadDec
+	; // call Crlf
+	mov [esi],eax
+	add esi,type nums
+	loop L1
+
+	mov esi, OFFSET nums
+	mov ecx, LEN
+	mov ebx, type nums
+	call DumpMem
+		 
+	call WaitMsg
+main ENDP
+END main
+```
