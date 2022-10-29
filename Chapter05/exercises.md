@@ -67,3 +67,188 @@ main PROC
 main ENDP
 END main
 ```
+## 5.8.1
+1. 哪条指令将全部的 32 位通用寄存器压入堆栈？答：PUSHAD。
+2. 哪条指令将 32 位 EFLAGS 寄存器压入堆栈？答：PUSHFD。
+3. 哪条指令将堆栈内容弹出到 EFLAGS 寄存器？答：POPFD。
+4. 挑战：另一种汇编器（称为 NASM）允许 PUSH 指令列出多个指定寄存器。为什么这种方法可能会比 MASM 中的 PUSHAD 指令要好？下面是一个 NASM 示例：
+``` asm
+PUSH EAX EBX ECX
+```
+答：程序员使用更加方便。
+5. 挑战：假设没有 PUSH 指令，另外编写两条指令来完成与 push eax 同样的操作。答：
+``` asm
+mov [ESP - 4],eax
+sub esp,4
+```
+6. （真/假）：RET 指令将栈顶内容弹出到指令指针寄存器。答：真。
+7. （真/假）：Microsoft 汇编器不允许过程嵌套调用，除非在过程定义中使用了 NESTED 运算符。答：假。
+8. （真/假）：在保护模式下，每个过程调用最少使用 4 个字节的堆栈空间。答：对，用于保存返回地址。
+9. （真/假）：向过程传递 32 位参数时，不能使用 ESI 和 EDI 寄存器。答：假，没听说过不能啊。
+10. （真/假）：ArraySum 过程（5.2.5 节）接收一个指向任何一个双字数组的指针。答：真。
+11. （真/假）：USERS 运算符能让程序员列出所有在过程中会被修改的寄存器。答：真。
+12. （真/假）：USER 运算符只能产生 PUSH 指令，因为程序员必须自己编写代码完成 POP 指令功能。答：假。
+13. （真/假）：用 USES 伪指令列出寄存器时，必须用逗号分割寄存器名。答：假，空格可以。
+14. 修改 ArraySum 过程（5.2.5 节）中的哪些语句，使之能计算 16 位字数组的累计和？编写这个版本的 ArraySum 并进行测试。
+``` asm
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+array WORD 100h, 200h, 300h, 400h, 500h
+theSum DWORD ?
+
+.code
+main PROC
+	mov esi, OFFSET array
+	mov ecx, LENGTHOF array
+	call ArraySum
+	mov theSum, eax
+
+	INVOKE ExitProcess, 0
+main ENDP
+
+; //--------------------------------------
+; // ArraySum
+; // 计算 16 位整数之和。
+; // 接收：ESI=数组偏移量
+; //      ECX=数组元素的个数
+; // 返回：EAX=数组元素之和
+; //--------------------------------------
+ArraySum PROC USES esi ecx ebx
+	mov eax,0
+
+	L1: movsx ebx,WORD PTR [esi]
+	add eax,ebx
+	add esi,TYPE WORD
+	loop L1
+
+	ret
+ArraySum ENDP
+
+END main
+```
+15. 执行下列指令后，EAX 的最后数值是多少？答：5。
+``` asm
+push 5
+push 6
+pop eax
+pop eax
+```
+16. 运行如下示例代码时，下面哪个对执行情况的陈述是正确的？答：b
+``` asm
+main PROC
+    push 10
+    push 20
+    call Ex2Sub
+    pop eax
+    INVOKE ExitProcess,0
+main ENDP
+Ex2Sub PROC
+    pop eax
+    ret
+Ex2Sub ENDP
+```
+a. 到第 6 行代码，EAX 等于 10
+b. 到第 10 行代码，程序将因运行时错误而暂停
+c. 到第 6 行代码，EAX 将等于 20
+d. 到第 11 行代码，程序将因运行时错误而暂停
+17. 运行如下示例代码时，下面哪个对执行情况的陈述时正确的？答：d
+``` asm
+main PROC
+    mov eax,30
+    push eax
+    push 40
+    call Ex3Sub
+    INVOKE ExitProcess,0
+main ENDP
+Ex3Sub PROC
+    pusha
+    mov eax,80
+    popa
+    ret
+Ex3Sub ENDP
+```
+a. 到第 6 行代码，EAX 等于 40
+b. 到第 6  行代码，程序将因运行时错误而暂停
+c. 到第 6 行代码，EAX 将等于 30
+d. 到第 13 行代码，程序将因运行时错误而暂停
+18. 运行如下示例代码时，下面哪个对执行情况的陈述是正确的？答：a
+``` asm
+main PROC
+    mov eax,40
+    push offset Here
+    jmp Ex4Sub
+    Here: 
+    mov eax,30
+    INVOKE ExitProcess,0
+main ENDP
+
+Ex4Sub PROC
+    ret
+Ex4Sub ENDP
+```
+a. 到第 7 行代码，EAX 将等于 30
+b. 到第 4 行代码，程序将因运行时错误而暂停
+c. 到第 6 行代码，EAX 将等于 30
+d. 到第 11 行代码，程序将因运行时错误而暂停
+19. 运行如下示例代码时，下面哪个对执行情况的陈述是正确的？答：都不正确。
+``` asm
+main PROC
+    mov edx,0
+    mov eax,40
+    push eax
+    call Ex5Sub
+    INVOKE ExitProcess,0
+main ENDP
+ 
+Ex5Sub PROC
+    pop eax ; 返回地址
+    pop edx ; 40
+    push eax ; 返回地址
+    ret
+Ex5Sub ENDP
+```
+a. 到第 6 行代码，EAX 将等于 40
+b. 到第 13 行代码，程序将因运行时错误而暂停
+c. 到第 6 行代码，EAX 将等于 0
+d. 到第 11 行代码，程序将因运行时错误而暂停
+20. 执行下述代码时，哪些数值将被写入数组？答：10、20、30、40。
+``` asm
+.data
+array DWORD 4 DUP(0)
+.code
+main PROC
+    mov eax,10
+    mov esi,0
+    call proc_1
+    add esi,4
+    add eax,10
+    mov array[esi],eax ; 10,20,30,0
+    INVOKE ExitProcess,0
+main ENDP
+ 
+proc_1 PROC
+    call proc_2 ; 10,20,0,0
+    add esi,4
+    add eax,10
+    mov array[esi],eax
+    ret
+proc_1 ENDP
+ 
+proc_2 PROC
+    call proc_3 ; 10,0,0,0
+    add esi,4 
+    add eax,10
+    mov array[esi],eax
+    ret
+proc_2 ENDP
+ 
+proc_3 PROC
+    mov array[esi],eax
+    ret
+proc_3 ENDP
+```
