@@ -384,3 +384,521 @@ func ENDP
 
 END main
 ```
+# 5.9
+1. 用循环结构，编写程序用四种颜色显示同一字符串。调用本书链接库的 SetTextColor 过程。可以选择任意颜色，但你会发现改变前景色是最简单的。
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+hello byte "hello, world",0
+backgroundcolor = black
+frontendcolors dword red,blue,green,yellow,white
+
+.code
+main PROC
+	mov ecx,lengthof frontendcolors
+	mov esi,0
+	L1: mov eax,(backgroundcolor * 16) + frontendcolors[esi]
+	call SetTextColor
+	mov edx, offset hello
+	call WriteString
+	call Crlf
+	add esi,type frontendcolors
+	loop L1
+	INVOKE ExitProcess,0
+main ENDP
+
+func PROC
+	pop eax
+	push eax
+	call WriteHex 
+	call Crlf
+	ret
+func ENDP
+
+END main
+```
+2. 假设给定的 3 个数据项分别代表一个表、一个字符数组以及一个链接索引数组的起始变址。编写程序遍历链接，并按正确顺序定位字符。将被定位的每个字符都复制到一个新数组中。假设使用如下示例数据，且各数组都从 0 开始变址：
+``` asm
+start = 1
+chars: H A C E B D F G
+links: 0 4 5 6 2 3 7 0
+```
+复制到输出数组的数值（依次）为 A、B、C、D、E、F、G、H。字符数组声明为 BYTE 类型，为了使问题更加有趣，将链表数组声明为 DWORD 类型。
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+start = 1
+chars byte "HACEBDFG"
+links byte 0,4,5,6,2,3,7,0
+output byte (lengthof chars + 1) dup(0)
+
+.code
+main PROC
+	mov ecx,lengthof links
+	mov esi,start
+	mov edi,0
+
+	L1: mov al,chars[esi]
+	mov output[edi],al
+	add edi,type output
+	movzx esi,links[esi]
+	loop L1
+
+	mov edx,offset output
+	call WriteString
+	INVOKE ExitProcess,0
+main ENDP
+
+func PROC
+	pop eax
+	push eax
+	call WriteHex 
+	call Crlf
+	ret
+func ENDP
+
+END main
+```
+3. 编写程序：清屏，将鼠标定位到屏幕中心附近，提示用户输入两个整数，两数相加，并显示和数。
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+rows byte 0
+cols byte 0
+prompt byte 'Please input a number: ',0
+val1 sdword ?
+val2 sdword ?
+
+.code
+main PROC
+	call Clrscr
+	call GetMaxXY ; al 行数、dl 列数
+
+	mov bl,2
+
+	movzx eax,al
+	div bl
+	mov rows,al
+	
+	movzx eax, dl
+	div bl
+	mov cols,al
+	
+	mov dh,rows
+	mov dl,cols
+	call Gotoxy
+
+	mov edx,offset prompt
+	call WriteString
+
+	call ReadInt
+	mov val1,eax
+
+	mov edx, offset prompt
+	call WriteString
+
+	call ReadInt
+	mov val2, eax
+
+	mov eax,0
+	add eax,val1
+	add eax,val2
+	call WriteInt
+	call Crlf
+
+
+	INVOKE ExitProcess,0
+main ENDP
+
+END main
+```
+4. 以前一题编写的程序为起点，在新程序中，用循环结构将上述同样的步骤重复 3 次。每次循环迭代后清屏。
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+rows byte 0
+cols byte 0
+prompt byte 'Please input a number: ',0
+val1 sdword ?
+val2 sdword ?
+
+.code
+main PROC
+	mov ecx,3
+	L1: call sum
+	loop L1
+	INVOKE ExitProcess,0
+main ENDP
+
+sum PROC
+	call Clrscr
+	call GetMaxXY; al 行数、dl 列数
+
+	mov bl, 2
+
+	movzx eax, al
+	div bl
+	mov rows, al
+
+	movzx eax, dl
+	div bl
+	mov cols, al
+
+	mov dh, rows
+	mov dl, cols
+	call Gotoxy
+
+	mov edx, offset prompt
+	call WriteString
+
+	call ReadInt
+	mov val1, eax
+
+	mov edx, offset prompt
+	call WriteString
+
+	call ReadInt
+	mov val2, eax
+
+	mov eax, 0
+	add eax, val1
+	add eax, val2
+	call WriteInt
+	call Crlf
+	call WaitMsg
+	ret
+sum ENDP
+
+END main
+```
+5. BetterRandomRange 过程
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+
+.code
+main PROC
+	mov ecx,50
+
+	L1: mov ebx,-300
+	mov eax,100
+	call BetterRandomRange
+	loop L1
+	call WaitMsg
+	INVOKE ExitProcess,0
+main ENDP
+
+BetterRandomRange PROC
+	mov edx,eax
+	sub edx,ebx
+	mov eax,edx
+	call RandomRange
+	add eax,ebx
+	call WriteInt
+	call Crlf
+	ret
+BetterRandomRange ENDP
+
+END main
+```
+6. 随机字符串
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+L = 10
+string byte L + 1 dup(0)
+
+.code
+main PROC
+	mov ecx,20
+
+	L1: mov eax,L
+	call RandomString
+	mov edx,offset string
+	call WriteString
+	call Crlf
+	loop L1
+	call WaitMsg
+	INVOKE ExitProcess,0
+main ENDP
+
+RandomString PROC uses ecx
+	mov ecx,eax
+	mov eax,26
+	mov esi,0
+
+	L1: mov eax,26
+	call RandomRange
+	add eax,'A'
+	mov string[esi],al
+	inc esi
+	loop L1
+
+	ret
+RandomString ENDP
+
+END main
+```
+7. 随机屏幕位置
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+rows byte ?
+cols byte ?
+character byte 'B'
+
+.code
+main PROC
+	mov ecx,10
+
+	call GetMaxXY
+	mov rows,al
+	mov cols,dl
+
+	mov bl, 1
+
+	L1: 
+	movzx eax,cols
+	call RandomRange
+	inc eax
+
+	mov dh,bl
+	mov dl,al
+	call Gotoxy
+
+	mov al,character
+	call WriteChar
+
+	inc bl
+ 	mov eax,1000
+	call Delay
+	loop L1
+
+	call Crlf
+	call WaitMsg
+	INVOKE ExitProcess,0
+main ENDP
+
+END main
+```
+8. 颜色矩阵
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+	hello byte "hello, world",0
+	defaultColor byte ?
+
+.code
+main PROC
+	call GetTextColor
+	mov defaultColor,al
+
+	mov ecx, 16
+
+	mov esi,ecx 
+	dec esi
+
+	L1: push ecx
+	mov ecx,16
+	mov edi,ecx
+	dec edi
+
+	L2: mov eax,edi
+	shl eax,4
+	add eax,esi
+	call SetTextColor
+	mov edx,offset hello
+	call WriteString
+	call Crlf
+	dec edi
+	mov eax,1000
+	call Delay
+	loop L2
+
+	pop ecx
+	dec esi
+	loop L1
+
+	movsx eax,defaultColor
+	call SetTextColor
+	call WaitMsg
+	INVOKE ExitProcess, 0
+main ENDP
+
+END main
+```
+9. 递归过程
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+	hello byte ". hello, world",0
+	defaultColor byte ?
+
+.code
+main PROC
+	mov ecx,10
+	call recursion
+	
+	call WaitMsg
+	INVOKE ExitProcess, 0
+main ENDP
+
+recursion PROC
+	L1:
+	mov eax,ecx
+	call WriteInt
+	mov edx, offset hello
+	call WriteString
+	call Crlf
+
+	loop L1
+
+	ret
+recursion ENDP
+
+END main
+```
+10. 斐波那契数列生成器
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+	LEN = 47
+	data dword LEN dup(0)
+
+.code
+main PROC
+	call Fibonacci
+	
+	call WaitMsg
+	INVOKE ExitProcess, 0
+main ENDP
+
+Fibonacci PROC
+	mov ecx,LEN - 2
+	mov esi,0
+	mov data[esi],1
+	add esi,type data
+	mov data[esi],1
+
+	add esi,type data
+	mov edi,esi
+	mov esi,0
+	mov ebx,esi
+	add ebx,type data
+
+	L1:
+	mov eax,data[esi]
+	add eax,data[ebx]
+	mov data[edi],eax
+	add esi,type data
+	add ebx,type data
+	add edi,type data
+
+	loop L1
+
+	ret
+Fibonacci ENDP
+
+END main
+```
+11. 找出 K 倍数
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+	N = 20
+	K = 2
+	data byte N dup(0)
+
+.code
+main PROC
+	call MutiK
+	
+	call WaitMsg
+	INVOKE ExitProcess, 0
+main ENDP
+
+MutiK PROC 
+	mov edx,0
+	mov eax,N
+	mov ecx,K
+	div cx
+
+	mov ecx,eax
+	mov esi,0
+	
+	L1:
+	add esi,K
+	mov data[esi],1
+	loop L1
+
+	ret
+MutiK ENDP
+
+END main
+```
