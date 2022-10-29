@@ -104,7 +104,15 @@
 | WriteDec | 输出 eax 无符号十进制 |
 | WriteHex | 输出 eax 十六进制 |
 | WriteInt | 输出 eax 有符号十进制 |
-| WriteString | 输出字符串（edx 字符串起始内存位置）
+| WriteString | 输出字符串（edx 字符串起始内存位置）|
+
+# x64 调用规范
+Microsoft 在 64 位程序中使用统一模式来传递并调用过程，称为 Microsoft x64 调用规范。该规范由 C/C++ 编译器和 Windows 应用编程接口（API）使用。程序员只有在调用 Windows API 的函数或用 C/C++ 编写的函数时，才会使用这个调用规范，调用 Irvine64 链接库中的子程序时，不需使用 Microsoft x64 调用规范。该规范一些基本特征如下：
+1. CALL 指令将 RSP（堆栈指针）寄存器减 8，因为地址是 64 位的；
+2. 前四个参数依序存入 RCX、RDX、R8 和 R9 寄存器，并传递给过程。如果只有一个参数，则将其放入 RCX。如果还有第二个参数，则将其放入 RDX，以此类推。其他参数，按照从左到右的顺序压入堆栈；
+3. 调用者的责任还包括在运行时分配至少 32 字节的影子空间（shadow space），这样，被调用的过程就可以选择将寄存器参数保存在这个区域中；
+4. 在调用子程序时，堆栈指针（RSP）必须进行 16 字节边界对齐（16 的倍数）。CALL 指令把 8 字节的返回值压入堆栈，因此，除了已经减去的影子空间的 32 之外，调用程序还必须从堆栈指针中减去 8；
+
 # Microsoft Visual Studio Community 2019
 ## 版本信息
 1. Microsoft Visual Studio Community 2019 版本 16.11.8
