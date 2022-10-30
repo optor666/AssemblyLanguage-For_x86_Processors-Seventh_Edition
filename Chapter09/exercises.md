@@ -1093,6 +1093,115 @@ END main
 ```
 13. 裁剪前导字符：编写 Str_trim 过程的变体，使得主调程序能从字符串中删除所有的前导字符。比如，若调用过程时，有一指针指向字符串 "###ABC"，且向过程传递了字符 "#"，则结果字符串应为 "ABC"。
 ``` asm
+; Trim Trailing Characters(Trim.asm)
+
+; Test the Trim procedure.Trim removes trailing all
+; occurrences of a selected character from the end of
+; a string.
+
+INCLUDE Irvine32.inc
+
+Str_trim_leading PROTO,
+	pString:PTR BYTE, ; points to string
+	char:BYTE; character to remove
+
+Str_length PROTO,
+	pString:PTR BYTE; pointer to string
+
+ShowString PROTO,
+	pString:PTR BYTE
+
+.data
+; Test data :
+string_1 BYTE 0; case 1
+string_2 BYTE "#", 0; case 2
+string_3 BYTE "Hello###", 0; case 3
+string_4 BYTE "Hello", 0; case 4
+string_5 BYTE "H#", 0; case 5
+string_6 BYTE "#H", 0; case 6
+string_7 BYTE "####Hhell##o##", 0; case 7
+
+.code
+main PROC
+	call Clrscr
+
+	INVOKE Str_trim_leading, ADDR string_1, '#'
+	INVOKE ShowString, ADDR string_1
+
+	INVOKE Str_trim_leading, ADDR string_2, '#'
+	INVOKE ShowString, ADDR string_2
+
+	INVOKE Str_trim_leading, ADDR string_3, '#'
+	INVOKE ShowString, ADDR string_3
+
+	INVOKE Str_trim_leading, ADDR string_4, '#'
+	INVOKE ShowString, ADDR string_4
+
+	INVOKE Str_trim_leading, ADDR string_5, '#'
+	INVOKE ShowString, ADDR string_5
+
+	INVOKE Str_trim_leading, ADDR string_6, '#'
+	INVOKE ShowString, ADDR string_6
+
+	INVOKE Str_trim_leading, ADDR string_7, '#'
+	INVOKE ShowString, ADDR string_7
+
+exit
+main ENDP
+
+Str_trim_leading PROC USES eax ecx esi edi,
+	pString:PTR BYTE,			; points to string
+	char:BYTE					; char to remove
+;
+; Remove all occurences of a given character from
+; the end of a string. 
+; Returns: nothing
+; Last update: 5/2/09
+;-----------------------------------------------------------
+	mov  edi,pString
+	INVOKE Str_length,edi         ; puts length in EAX
+	cmp  eax,0                    ; length zero?
+	je   L3                       ; yes: exit now
+	mov  ecx,eax                  ; no: ECX = string length
+	mov esi,pString
+L1: mov al,[esi]
+	cmp al,char
+	jne L2
+	inc esi
+	loop L1
+L2: cmp esi,pString
+	je L3
+	cmp BYTE PTR [esi],0
+	jne L4
+	mov edi,pString
+	mov BYTE PTR [edi],0
+	jmp L3
+L4: inc ecx
+	cld
+	mov edi,pString
+	rep movsb 
+L3:  ret
+Str_trim_leading ENDP
+
+; ---------------------------------------------------------- -
+ShowString PROC USES edx, pString:PTR BYTE
+; Display a string surrounded by brackets.
+; ---------------------------------------------------------- -
+.data
+lbracket BYTE "[", 0
+rbracket BYTE "]", 0
+.code
+	mov  edx, OFFSET lbracket
+	call WriteString
+	mov  edx, pString
+	call WriteString
+	mov  edx, OFFSET rbracket
+	call WriteString
+	call Crlf
+	ret
+ShowString ENDP
+
+END main
 ```
 14. 去除一组字符：编写 Str_trim 过程的变体，使得主调程序能从字符串末尾删除一组字符。比如，若调用过程时，有一指针指向字符串 "ABC#$&"，且向过程传递了过滤字符数组 "%#! ;$&*" 的指针，则结果字符串应为 "ABC"。
 ```
