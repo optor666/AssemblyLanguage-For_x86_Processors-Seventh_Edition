@@ -1007,10 +1007,92 @@ GetRandomChar ENDP
 END main
 ```
 12. 数组行求和：编写程序 calc_row_sum 计算二维的字节数组、字数组或双字数组中单行的总和。过程需有如下堆栈参数：数组偏移量、行大小、数组类型、行索引。返回的和数必须在 EAX 中。要求使用显式堆栈参数，不能用 INVOKE 或扩展的 PROC。编写程序，分别用字节数组、字数组和双字数组来测试过程。要求用户输入行索引，并显示被选择行的和数。
-```
+``` asm
+include Irvine32.inc
+
+.386
+.model flat, stdcall
+
+.stack 4096
+ExitProcess PROTO, dwExitCode:DWORD
+calcRowSum PROTO,
+	arrayOffset : PTR BYTE,
+	rowLength : DWORD,
+	typeSize : DWORD,
+	rowIdx : DWORD
+
+.data
+prompt1 BYTE "请输入行索引：",0
+prompt2 BYTE "该行总和为：",0
+inputRowIdx DWORD ?
+myArray SDWORD 1,2,33,
+		4,5,6,
+		7,8,-9
+
+.code
+main PROC
+	mov edx,OFFSET prompt1
+	call WriteString
+	call ReadDec
+	mov inputRowIdx,eax
+	INVOKE calcRowSum,ADDR myArray,3,TYPE myArray,inputRowIdx
+	
+	mov edx,OFFSET prompt2
+	call WriteString
+	call WriteInt
+
+	INVOKE ExitProcess, 0
+main ENDP
+
+calcRowSum PROC USES esi ebx ecx,
+	arrayOffset:PTR BYTE,
+	rowLength:DWORD,
+	typeSize:DWORD,
+	rowIdx:DWORD
+
+	mov eax,typeSize
+	mul rowLength
+	mul rowIdx
+
+	mov esi,arrayOffset
+	add esi,eax
+	mov ecx,rowLength
+
+	mov eax,0
+L1: 
+	cmp typeSize,1
+	jne L2
+	movsx ebx,BYTE PTR[esi]
+	add eax,ebx
+	add esi,1
+	loop L1
+	jmp L5
+L2:
+	cmp typeSize,2
+	jne L3
+	movzx ebx,WORD PTR[esi]
+	add eax,ebx
+	add esi,2
+	loop L1
+	jmp L5
+L3:
+	cmp typeSize,4
+	jne L4
+	mov ebx,DWORD PTR[esi]
+	add eax,ebx
+	add esi,4
+	loop L1
+	jmp L5
+L4:
+	mov eax,-1
+L5:
+	ret
+calcRowSum ENDP
+
+END main
 ```
 13. 裁剪前导字符：编写 Str_trim 过程的变体，使得主调程序能从字符串中删除所有的前导字符。比如，若调用过程时，有一指针指向字符串 "###ABC"，且向过程传递了字符 "#"，则结果字符串应为 "ABC"。
-```
+``` asm
 ```
 14. 去除一组字符：编写 Str_trim 过程的变体，使得主调程序能从字符串末尾删除一组字符。比如，若调用过程时，有一指针指向字符串 "ABC#$&"，且向过程传递了过滤字符数组 "%#! ;$&*" 的指针，则结果字符串应为 "ABC"。
 ```
