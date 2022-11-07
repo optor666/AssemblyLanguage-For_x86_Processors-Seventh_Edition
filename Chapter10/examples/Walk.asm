@@ -1,3 +1,4 @@
+;// "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\Hostx86\x86\ml.exe" /c /nologo /Sg /Zi /Fo"Walk.obj" /Fl"Project.lst" /I "c:\Irvine" /W3 /errorReport:prompt /TaWalk.asm
 ;// 醉汉行走 （Walk.asm）
 ;// 醉汉行走程序。教授的起点坐标位 （25，25），并在周围徘徊。
 INCLUDE Irvine32.inc
