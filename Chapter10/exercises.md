@@ -72,6 +72,7 @@ FOR val,<100,20,30>
 ENDM
 ```
 答案：
+
 7. 设已定义如下宏 mRepeat:
 ``` asm
 mRepeat MACRO char,count
@@ -96,6 +97,7 @@ mRepeat AL,20 ; b
 mRepeat byteVal,countVal ; c
 ```
 答案：
+
 8. 挑战：在链表示例程序（10.4.5 节）中，如果 REPEAT 循环的代码如下，那么程序运行结果如何？
 ``` asm
 REPEAT TotalNodeCount
