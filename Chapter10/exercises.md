@@ -57,3 +57,50 @@ mov eax,TYPE MyStruct.field2
 3. 哪条伪指令能停止所有后续的宏展开？答：EXITM，该伪指令立即退出宏，阻止所有后续宏语句的展开。
 4. IFIDNI 与 IFIDN 有什么不同？答：IFIDN <arg1>,<arg2>，若两个实参相等（相同）则允许汇编。采用区分大小写的比较。IFIDNI 采用不区分大小写的比较。
 5. IFDEF 伪指令的作用是什么？答：IFDEF name，若 name 已定义则允许汇编。
+
+# 10.4
+## 10.4.6
+1. 简要说明 WHILE 伪指令；答案：WHILE 伪指令重复一个语句块，直到特定的常量表达式为真。
+2. 简要说明 REPEAT 伪指令；答案：REPEAT 伪指令将一个语句块重复固定次数。
+3. 简要说明 FOR 伪指令；答案：FOR 伪指令通过迭代用逗号分隔的符号列表来重复一个语句块。
+4. 简要说明 FORC 伪指令；答案：FORC 伪指令通过迭代字符串来重复一个语句块。
+5. 哪条伪指令最适合生成字符查找表？
+6. 写出由下述宏生成的语句：
+``` asm
+FOR val,<100,20,30>
+ BYTE 0,0,0,val
+ENDM
+```
+答案：
+7. 设已定义如下宏 mRepeat:
+``` asm
+mRepeat MACRO char,count
+ LOCAL L1
+ mov cx,count
+L1: mov ah,2
+ mov dl,char
+ int 21h
+ loop L1
+ENDM
+```
+当按照下列语句（a，b 和 c）进行 mRepeat 宏展开时，请写出预处理程序生成的代码：
+``` asm
+mRepeat 'X',50 ; a
+```
+答案：
+``` asm
+mRepeat AL,20 ; b
+```
+答案：
+``` asm
+mRepeat byteVal,countVal ; c
+```
+答案：
+8. 挑战：在链表示例程序（10.4.5 节）中，如果 REPEAT 循环的代码如下，那么程序运行结果如何？
+``` asm
+REPEAT TotalNodeCount
+  Counter = Counter + 1
+  ListNode <Counter, ($ + SIZEOF ListNode)>
+ENDM
+```
+
