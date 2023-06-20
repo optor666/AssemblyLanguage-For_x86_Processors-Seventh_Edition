@@ -70,11 +70,14 @@
 # 指令
 1. 堆栈相关：PUSH POP PUSHFD POPFD PUSHAD POPAD PUSHA POPA
 2. 过程相关：CALL RET
+3. 循环结构：LOOP
 # 伪指令
 1. 获取某个全局变量内存位置：OFFSET arrayD
 2. 获取某个类型或某个变量类型字节数：TYPE SDWORD 或 TYPE arrayD
 3. 获取数组长度：LENGTHOF arrayD
 4. 过程相关：PROC ENDP
+5. 循环结构：WHILE, REPEAT, FOR, FORC
+   
 # 标号
 1. 带有单个冒号的代码标号只在包含它的过程中可见；带有两个冒号（::）的标号则是全局标号；
 # 随书链接库
