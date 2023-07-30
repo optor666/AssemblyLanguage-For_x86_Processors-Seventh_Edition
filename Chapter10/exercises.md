@@ -64,7 +64,7 @@ mov eax,TYPE MyStruct.field2
 2. 简要说明 REPEAT 伪指令；答案：REPEAT 伪指令将一个语句块重复固定次数。
 3. 简要说明 FOR 伪指令；答案：FOR 伪指令通过迭代用逗号分隔的符号列表来重复一个语句块。
 4. 简要说明 FORC 伪指令；答案：FORC 伪指令通过迭代字符串来重复一个语句块。
-5. 哪条伪指令最适合生成字符查找表？
+5. 哪条伪指令最适合生成字符查找表？答案：FORC。
 6. 写出由下述宏生成的语句：
 ``` asm
 FOR val,<100,20,30>
@@ -72,6 +72,11 @@ FOR val,<100,20,30>
 ENDM
 ```
 答案：
+``` asm
+BYTE 0,0,0,100
+BYTE 0,0,0,20
+BYTE 0,0,0,30
+```
 
 7. 设已定义如下宏 mRepeat:
 ``` asm
@@ -89,6 +94,8 @@ ENDM
 mRepeat 'X',50 ; a
 ```
 答案：
+``` asn
+
 ``` asm
 mRepeat AL,20 ; b
 ```
@@ -105,4 +112,5 @@ REPEAT TotalNodeCount
   ListNode <Counter, ($ + SIZEOF ListNode)>
 ENDM
 ```
+答案：第二个节点的 next 指针指向自己，形成环。
 
