@@ -146,3 +146,27 @@ e. current RentalInvoice <,15,0,0>
 8. 宏定义中的 & 运算符有什么作用？答：替换运算符 & 解析对宏参数名的有歧义的引用。
 9. 宏定义中的 ! 运算符有什么作用？答：构造文字字符 ! 的目的与文字文本运算符的几乎完全一致：强制预处理程序把预先定义的运算符当作普通的字符。
 10. 宏定义中的 % 运算符有什么作用？答：展开运算符 % 展开文本宏并将常量表达式转换为文本形式。
+
+## 10.7.2
+1. 创建包含两个字段的结构 SampleStruct: field1 为一个 16 位 WORD，field2 为含有 20 个 32 位 DWORD 的数组。不需定义字段初始值。答：
+``` asm
+field1 WORD ?
+field2 DWORD 20 DUP(?)
+```
+2. 编写一条语句检索结构 SYSTEMTIME 的 wHour 字段。答：
+``` asm
+mov ax, [YourSystemTimeVariable].wHour
+```
+3. 使用如下 Triangle 结构，声明一个结构变量并将其三个顶点分别初始化为 (0, 0)、(5, 0) 和 (7, 6)：
+``` asm
+Triangle STRUCT
+ Vertex1 COORD <>
+ Vertex2 COORD <>
+ Vertex3 COORD <>
+Triangle ENDS
+```
+答：
+``` asm
+triangle Triangle <<0,0>, <5,0> <7,6>>
+```
+4. 
