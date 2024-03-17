@@ -242,3 +242,8 @@ outputLoop:
 main ENDP
 END main
 ```
+5. 编写宏 mPrintChar，在屏幕上显示一个字符。宏应有两个参数：第一个指定显示的字符，第二个指定字符重复的次数。示例调用如下：
+``` asm
+mPrintChar 'X', 20
+```
+
