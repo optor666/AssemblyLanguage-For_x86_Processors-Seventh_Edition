@@ -246,4 +246,33 @@ END main
 ``` asm
 mPrintChar 'X', 20
 ```
+答：
+``` asm
+INCLUDE Irvine32.inc
+
+mPrintChar MACRO charToPrint:REQ, count:REQ
+	LOCAL loopLabel
+
+	mov ecx, count
+	mov al, charToPrint
+loopLabel:
+	call WriteChar
+	loop loopLabel
+ENDM
+
+.data
+charToPrint BYTE 'A'
+repeatTimes DWORD 3
+
+.code
+main PROC
+	mPrintChar charToPrint, repeatTimes
+
+	exit
+main ENDP
+END main
+```
+6. 编写宏 mGenRandom，在 0 到 n-1 之间随机生成一个整数，n 为宏的唯一参数。答：
+``` asm
+```
 
