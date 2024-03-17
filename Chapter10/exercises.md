@@ -169,4 +169,76 @@ Triangle ENDS
 ``` asm
 triangle Triangle <<0,0>, <5,0> <7,6>>
 ```
-4. 
+4. 声明一个 Triangle 结构的数组，并编写一个循环，用随机坐标对每个三角形的 Vertex1 进行初始化，坐标范围为 (0...10, 0...10)。
+``` asm
+INCLUDE Irvine32.inc
+
+Triangle STRUCT
+	Vertex1 COORD <>
+	Vertex2 COORD <>
+	Vertex3 COORD <>
+Triangle ENDS
+
+.data
+triangleArray Triangle 3 DUP({})
+coordMin DWORD 0
+coordMax DWORD 10
+
+prompt BYTE "第 ",0
+vertexPrompt BYTE " 个顶点坐标为：(",0
+comma BYTE ", ",0
+prompt2 BYTE ")", 0
+
+.code
+main PROC
+	mov ecx, LENGTHOF triangleArray
+	mov esi, OFFSET triangleArray
+
+	call Randomize
+
+initLoop:
+	mov eax, coordMax
+	inc eax
+	call RandomRange
+	mov [esi].Triangle.Vertex1.X, ax
+
+	mov eax, coordMax
+	inc eax
+	call RandomRange
+	mov[esi].Triangle.Vertex1.Y, ax
+
+	add esi, SIZEOF Triangle
+	loop initLoop
+
+	mov ecx, LENGTHOF triangleArray
+	mov esi, OFFSET triangleArray
+
+outputLoop:
+	mov edx, offset prompt
+	call WriteString
+	mov eax, LENGTHOF triangleArray
+	sub eax, ecx
+	inc eax
+	call WriteDec
+	mov edx, offset vertexPrompt
+	call WriteString
+
+	mov ax, [esi].Triangle.Vertex1.X
+	call WriteDec
+	mov edx, offset comma
+	call WriteString
+	
+	mov ax, [esi].Triangle.Vertex1.Y
+	call WriteDec
+
+	mov edx, offset prompt2
+	call WriteString
+	call Crlf
+
+	add esi, SIZEOF Triangle
+	loop outputLoop
+
+	exit
+main ENDP
+END main
+```
