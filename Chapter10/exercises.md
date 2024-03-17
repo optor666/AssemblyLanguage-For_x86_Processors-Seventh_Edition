@@ -274,5 +274,82 @@ END main
 ```
 6. 编写宏 mGenRandom，在 0 到 n-1 之间随机生成一个整数，n 为宏的唯一参数。答：
 ``` asm
-```
+INCLUDE Irvine32.inc
 
+mGenRandom MACRO n:REQ
+	mov eax, n
+	call RandomRange
+ENDM
+
+.data
+
+.code
+main PROC
+	mov ecx, 100
+L1:
+	mGenRandom 10
+	call WriteDec
+	call Crlf
+	loop L1
+
+	exit
+main ENDP
+END main
+```
+7. 编写宏 mPromptInteger，显示提示并接收用户输入的一个整数。向该宏传递一个字符串文本和一个双字变量名。示例调用如下：
+``` asm
+.data
+minVal DWORD ?
+.code
+mPromptInteger "Enter the minimum value", minVal
+```
+答：
+``` asm
+INCLUDE Irvine32.inc
+
+mPromptInteger MACRO prompt:REQ, intVariable:REQ
+LOCAL promptText
+.data
+promptText BYTE prompt,0
+
+.code
+	mov edx, OFFSET promptText
+	call WriteString
+	mov ebx, OFFSET intVariable
+	call ReadInt
+	mov [ebx], eax
+ENDM
+
+.data
+minVal DWORD ?
+
+.code
+main PROC
+	mPromptInteger "Enter the minimum value: ", minVal
+	mov eax, minVal
+	call WriteInt
+	call Crlf
+	exit
+main ENDP
+END main
+```
+8. 编写宏 mWriteAt，定位光标并在控制台窗口显示一个字符串文本。建议：调用本书宏库中的 mGoto 和 mWrite。答：
+``` asm
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+mWriteAt MACRO row:REQ, col:REQ, text:REQ
+	mGotoxy row,col
+	mWrite text
+ENDM
+
+.data
+
+.code
+main PROC
+	mWriteAt 3, 3, "Hello, World!"
+	mWriteAt 6, 6, "你好，世界！"
+	exit
+main ENDP
+END main
+```
