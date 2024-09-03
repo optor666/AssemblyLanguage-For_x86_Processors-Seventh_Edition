@@ -353,3 +353,26 @@ main PROC
 main ENDP
 END main
 ```
+9. 用如下语句调用 10.2.5 节的宏 mWriteString，请写出其生成的展开代码：
+``` asm
+mWriteString namePrompt
+```
+``` asm
+push edx
+mov  edx,OFFSET namePrompt
+call WriteString
+pop  edx
+```
+10. 用如下语句调用 10.2.5 节的宏 mReadString，请写出其生成的展开代码：
+``` asm
+mReadString customerName
+```
+``` asm
+push ecx
+push edx
+mov  edx,OFFSET customerName
+mov  ecx,SIZEOF customerName
+call ReadString
+pop  edx
+pop ecx
+```
