@@ -376,3 +376,53 @@ call ReadString
 pop  edx
 pop ecx
 ```
+11. 编写宏 mDumpMemx，接收一个参数和一个变量名。该宏必须调用本书链接库的宏 mDumpMem，并向其传递变量的偏移量，存储对象的数量和对象的大小。演示对宏 mDumpMemx 的调用。
+``` asm
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+myDump MACRO varName : REQ, useLabel
+	call Crlf
+	IFNB <useLabel>
+		mWrite "Variable name: &varName"
+	ELSE
+		mWrite " "
+	ENDIF
+	mDumpMem OFFSET varName, LENGTHOF varName, TYPE varName
+ENDM
+
+.data
+diskSize DWORD 123456H
+
+.code
+main PROC
+	
+	myDump diskSize, T
+
+exit
+main ENDP
+END main
+```
+12. 举例说明有默认实参初始值的宏形参。
+``` asm
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+myPrintNumber MACRO number:=<100>
+	call Crlf
+	mov eax, number
+	call WriteInt
+ENDM
+
+.data
+
+.code
+main PROC
+	
+	myPrintNumber 200
+	myPrintNumber
+
+exit
+main ENDP
+END main
+```
