@@ -426,3 +426,8 @@ exit
 main ENDP
 END main
 ```
+13. 编写一个简短的例子来使用 IF、ELSE 和 ENDIF 伪指令。
+``` asm
+; 生成一个随机数
+; 循环让用户猜测
+```
