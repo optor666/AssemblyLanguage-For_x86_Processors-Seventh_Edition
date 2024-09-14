@@ -428,6 +428,48 @@ END main
 ```
 13. 编写一个简短的例子来使用 IF、ELSE 和 ENDIF 伪指令。
 ``` asm
-; 生成一个随机数
-; 循环让用户猜测
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+; ------------------------------------------
+mGotoxyConst MACRO X:REQ, Y:REQ
+;
+; 将光标位置设置在 X 列 Y 行。
+; 要求 X 和 Y 的坐标为常量表达式
+; 其范围为 0 <= X < 80, 0 <= Y < 25
+; ------------------------------------------
+	LOCAL ERRS
+	ERRS = 0
+	IF (X LT 0) OR (X GT 79)
+		ECHO Warning: First argument to mGotoxy (X) is out of range.
+		ECHO *******************************************************
+		ERRS = 1
+	ENDIF
+	IF(Y LT 0) OR(Y GT 24)
+		ECHO Warning : Second argument to mGotoxy (Y) is out of range.
+		ECHO * ******************************************************
+		ERRS = ERRS + 1
+	ENDIF
+	IF ERRS GT 0
+		EXITM
+	ENDIF
+	push edx
+	mov dh,Y
+	mov dl,X
+	call Gotoxy
+	pop edx
+ENDM
+
+.data
+prompt BYTE "Enter your name: ",0
+
+.code
+
+main PROC
+	mGotoxyConst 8, 2
+	mov edx, OFFSET prompt
+	call WriteString
+exit
+main ENDP
+END main
 ```
