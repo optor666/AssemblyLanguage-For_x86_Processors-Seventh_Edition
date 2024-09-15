@@ -545,3 +545,51 @@ exit
 main ENDP
 END main
 ```
+16. 假设宏 mLocate 的定义如下，若用下述语句调用该宏，请写出预处理程序在进行宏展开时生成的源代码：
+``` asm
+INCLUDE Irvine32.inc
+
+ExitProcess PROTO, dwExitCode:DWORD
+
+mLocate MACRO xval, yval
+	IF xval LT 0
+		EXITM
+	ENDIF
+	IF yval LT 0
+		EXITM
+	ENDIF
+	mov bx,0
+	mov ah,2
+	mov dh,yval ; y 行, 0 <= y < 25
+	mov dl,xval ; x 列, 0 <= x < 80
+	call Gotoxy ; 用户态程序无法直接调用 int 指令
+ENDM
+
+.data
+prompt BYTE "Enter your name: ",0
+buffer BYTE 20 DUP(0)
+row BYTE 15
+col BYTE 60
+
+.code
+main PROC
+	mLocate 10,20 ; mLocate 宏接受立即数，无法接受寄存器或内存地址变量
+	
+	mov edx,OFFSET prompt
+	call WriteString
+	
+	mov edx,OFFSET buffer
+	mov ecx,SIZEOF buffer
+	call ReadString
+	
+	mLocate 10,22
+	mov edx,OFFSET buffer
+	call WriteString
+	call Crlf
+	
+	call WaitMsg
+	
+	INVOKE ExitProcess,0
+main ENDP
+END main
+```
