@@ -473,3 +473,75 @@ exit
 main ENDP
 END main
 ```
+14. 编写一条语句，用 IF 伪指令检查宏参数 Z 的值；如果 Z 小于 0，则在汇编时显示一条消息说明 Z 是无效的。
+``` asm
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+; ------------------------------------------
+writePosInt MACRO Z:REQ
+;
+; ------------------------------------------
+	LOCAL ERRS
+	ERRS = 0
+	IF (Z LT 0)
+		ECHO Warning: First argument to writePosInt(Z) is out of range.
+		ECHO *******************************************************
+		ERRS = 1
+	ENDIF
+	IF ERRS GT 0
+		EXITM
+	ENDIF
+	push eax
+	mov eax,Z
+	call WriteDec
+	pop eax
+ENDM
+
+.data
+
+.code
+
+main PROC
+	writePosInt 55
+	call Crlf
+	writePosInt -55
+	call Crlf
+	writePosInt 88
+	call Crlf
+exit
+main ENDP
+END main
+```
+15. 编写一个简单的宏，在宏形参嵌入文本字符串时，演示运算符 & 的用法。
+``` asm
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
+
+; ------------------------------------------
+mDump MACRO varName:REQ, useLabel
+;
+; 用其已知属性显示一个变量
+; 接收：varName 为变量名
+; 如果 useLabel 不为空，则显示变量名。
+; ------------------------------------------
+	call Crlf
+	IFNB <useLabel>
+		mWrite "Variable name: &varName"
+	ENDIF
+	mDumpMem OFFSET varName, LENGTHOF varName, TYPE varName
+	pop eax
+ENDM
+
+.data
+diskSize DWORD 12345h
+
+.code
+
+main PROC
+	mDump diskSize
+	mDump diskSize, Y
+exit
+main ENDP
+END main
+```
