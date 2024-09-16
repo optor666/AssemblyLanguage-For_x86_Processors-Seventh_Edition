@@ -593,3 +593,90 @@ main PROC
 main ENDP
 END main
 ```
+# 10.8 编程练习
+1. 宏 mReadkey
+
+编写一个宏，等待依次按键操作并返回被按下的键。宏参数要包括 ASCII 码和键盘扫描码。
+
+**提示**：调用本书链接库的 ReadChar。编写程序对宏进行测试。比如，下面的代码等待一次按键，当它返回时，两个实参分别为按键的 ASCII 和扫描码：
+``` asm
+.data
+ascii BYTE ?
+scan BYTE ?
+.code
+mReadkey ascii, scan
+``` 
+
+**Answer**
+``` asm
+INCLUDE Irvine32.inc
+
+ExitProcess PROTO, dwExitCode:DWORD
+
+mReadkey MACRO ascii, scan
+        call ReadChar
+
+        mov ascii,AL
+        mov scan,AH
+ENDM
+
+.data
+ascii BYTE ?
+scan BYTE ?
+
+.code
+main PROC
+        mReadkey ascii,scan
+
+        mov AL,ascii
+        call WriteChar
+
+        call Crlf
+
+        movzx eax, scan
+        call WriteHex
+
+        INVOKE ExitProcess,0
+main ENDP
+END main
+```
+2. 宏 mWriteStringAttr
+
+（需提前阅读 11.1.11 节）编写一个宏，用指定文本颜色向控制台写一个空字符结束的字符串。宏参数需包含字符串的名称和颜色。
+
+**提示**：调用本书链接库的 SetTextColor。编写程序，用不同的颜色和字符串测试该宏。示例调用如下：
+``` asm
+.data
+myString db "here is my string", 0
+.code
+mWritestring myString, white
+```
+**Answer**
+```asm
+INCLUDE Irvine32.inc
+
+mWritestring MACRO string, color
+    mov eax, color + (black * 16)
+    call SetTextColor
+
+    mov edx, OFFSET string
+    call WriteString
+    call Crlf
+
+    mov eax, white + (black * 16)
+    call SetTextColor
+ENDM
+
+.data
+myString db "Here is my string", 0
+
+.code
+main PROC
+    mWritestring myString, white
+    mWritestring myString, red
+
+    call ReadChar
+    exit
+main ENDP
+END main
+```
