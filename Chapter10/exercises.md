@@ -680,3 +680,97 @@ main PROC
 main ENDP
 END main
 ```
+3. 宏 mMove32
+
+编写宏 mMove32，接收两个 32 位的内存操作数，并将源操作数传送到目的操作数。编写程序对宏进行测试
+```asm
+INCLUDE Irvine32.inc
+
+mMove32 MACRO source, target
+    mov eax, source
+    mov target, eax
+ENDM
+
+.data
+val1 DWORD 66
+val2 DWORD 88
+prompt1 db "source val: ", 0
+prompt2 db "target val: ", 0
+prompt3 db "before ==========================", 0
+prompt4 db "after ==========================", 0
+
+.code
+main PROC
+    mov edx, OFFSET prompt3
+    call WriteString
+    call Crlf
+    mov edx, OFFSET prompt1
+    mov eax, val1
+    call WriteDec
+    call Crlf
+    mov edx, OFFSET prompt2
+    mov eax, val2
+    call WriteDec
+    call Crlf
+
+    mMove32 val1, val2
+
+    mov edx, OFFSET prompt3
+    call WriteString
+    call Crlf
+    mov edx, OFFSET prompt1
+    mov eax, val1
+    call WriteDec
+    call Crlf
+    mov edx, OFFSET prompt2
+    mov eax, val2
+    call WriteDec
+    call Crlf
+
+    call ReadChar
+    exit
+main ENDP
+END main
+```
+4. 宏 mMult32
+
+创建宏 mMult32，将两个 32 位内存操作数相乘，生成一个 32 位的乘积。编写程序对宏进行测试。
+```asm
+INCLUDE Irvine32.inc
+
+mMult32 MACRO source, target
+.data
+prompt1 db " * ", 0
+prompt2 db " = ", 0
+.code
+    mov eax, source
+    call WriteDec
+    mov edx, OFFSET prompt1
+    call WriteString
+    mov eax, target
+    call WriteDec
+    mov edx, OFFSET prompt2
+    call WriteString
+    imul eax, source
+    call WriteDec
+    call Crlf
+ENDM
+
+.data
+val1 DWORD 66
+val2 DWORD 88
+
+.code
+main PROC
+
+    mMult32 val1, val2
+
+    call ReadChar
+    exit
+main ENDP
+END main
+```
+5. 宏 mReadInt
+
+创建宏 mReadInt，从标准输入读取一个 16 位或 32 位的有符号整数，并用实参返回该值。用条件运算符使得宏能适应预期结果的大小。编写程序，向宏传递不同大小的操作数以对其进行测试。
+
